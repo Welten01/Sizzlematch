@@ -1,0 +1,39 @@
+# Project Rules for Cursor as a Senior Mobile App Developer
+
+These rules guide Cursor to produce high-quality, maintainable, and scalable code for the Sizzlematch app using React Native with Expo and Firebase. Each rule is tailored to the recommended tech stack and includes path-specific applicability using glob patterns.
+
+---
+
+## 1. Modularity Across Multiple Files
+- **Description**: Break down the app into small, reusable components and hooks, each stored in its own file within directories like `components/`, `hooks/`, or `utils/`. Avoid monolithic files by separating UI rendering, state logic, and Firebase interactions into distinct modules. This enhances readability, maintainability, and scalability.
+- **Applies to**: `**/*.js`, `**/*.jsx`
+
+## 2. State Management Best Practices
+- **Description**: Use React’s `useState` for simple local state within components and `useReducer` for complex local logic. For global state (e.g., user authentication, match data), implement Context API or Redux to ensure consistent, optimized updates, especially with Firebase real-time features.
+- **Applies to**: `src/features/**/*.js`
+
+## 3. Robust Firebase API Handling
+- **Description**: Manage Firebase interactions (e.g., Firestore queries, Authentication) with `async/await` for readability. Include comprehensive error handling for network failures or permission denials, logging errors appropriately without exposing them to users. Avoid excessive retries to maintain performance.
+- **Applies to**: `src/services/**/*.js`
+
+## 4. Separation of UI and Business Logic
+- **Description**: Keep UI components focused on rendering and user interaction. Extract business logic (e.g., matching algorithms, chat functionality) into custom hooks or utility functions to simplify testing and improve long-term maintainability.
+- **Applies to**: `src/components/**/*.js`
+
+## 5. Real-Time Listener Optimization
+- **Description**: For Firestore real-time listeners (e.g., live chat updates), always unsubscribe in `useEffect` cleanup functions to prevent memory leaks. Test listener behavior with large datasets to ensure responsiveness under load.
+- **Applies to**: `src/hooks/**/*.js`
+
+## 6. Consistent Date Handling for Matching
+- **Description**: Store travel dates in Firestore as timestamps (e.g., `Firebase.Timestamp`) for efficient querying. Use `date-fns` in the frontend for parsing and comparing dates (e.g., overlapping travel schedules). Enforce a consistent date format across the app to avoid matching errors.
+- **Applies to**: `src/utils/**/*.js`, `src/services/**/*.js`
+
+## 7. Expo Workflow Efficiency
+- **Description**: Leverage Expo’s managed workflow to streamline development and deployment. Prioritize Expo’s built-in libraries (e.g., `expo-image-picker` for profile images) over third-party alternatives to reduce dependencies and ensure compatibility.
+- **Applies to**: `**/*.js`
+
+## 8. Secure Data Practices
+- **Description**: Safeguard sensitive data (e.g., Firebase config keys) in `app.json` or `.env` files (via `expo-dotenv`). Configure Firestore security rules to restrict access to authenticated users only, preventing unauthorized data exposure and ensuring privacy.
+- **Applies to**: `src/config/**/*.js`
+
+
