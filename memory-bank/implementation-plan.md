@@ -16,10 +16,6 @@ Test:
 Step 2: Configure Firebase 
 Task: Integrate Firebase into the app. 
 Instructions: 
-- Visit the Firebase Console and click "Add project." 
-- Name it "Sizzlematch" and complete the setup process. 
-- Enable Authentication, Firestore Database, and Cloud Storage in the Firebase console. 
-- In the Firebase project settings, locate the Firebase config object (e.g., apiKey, authDomain). 
 - Install expo-dotenv for environment variables: npm install expo-dotenv. 
 - Create a .env file in the project root and add the Firebase config (e.g., FIREBASE_API_KEY=your_key). 
 - Create src/config/firebase.js, import dotenv, and define the config using environment variables. 
