@@ -11,31 +11,20 @@ import {
   FIREBASE_APP_ID
 } from '@env';
 
-// Firebase configuration
+// Firebase configuration from environment variables
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
-  authDomain: FIREBASE_AUTH_DOMAIN || "sizzlematch.firebaseapp.com",
-  projectId: FIREBASE_PROJECT_ID || "sizzlematch",
-  storageBucket: FIREBASE_STORAGE_BUCKET || "sizzlematch.appspot.com",
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: FIREBASE_STORAGE_BUCKET,
   messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
-  appId: FIREBASE_APP_ID,
+  appId: FIREBASE_APP_ID
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase services
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-
-// For debugging only, remove in production
-if (__DEV__) {
-  console.log('Firebase configuration:', {
-    projectId: firebaseConfig.projectId,
-    authDomain: firebaseConfig.authDomain,
-    storageBucket: firebaseConfig.storageBucket
-  });
-}
 
 export { app, auth, db, storage }; 
