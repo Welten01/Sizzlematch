@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthButton from '../components/AuthButton';
 import { logout } from '../services/auth';
 import { showToast } from '../utils/toast';
+import TestProfileCreator from '../components/TestProfileCreator';
 
 const DashboardScreen = () => {
   const handleLogout = async () => {
@@ -22,6 +23,9 @@ const DashboardScreen = () => {
         <Text style={styles.subtitle}>
           You're logged in. This is a placeholder dashboard for authenticated users.
         </Text>
+        
+        {/* User Profile Testing Section */}
+        <TestProfileCreator />
         
         <View style={styles.buttonContainer}>
           <AuthButton

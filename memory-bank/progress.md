@@ -99,3 +99,52 @@ Firebase configuration now initializes correctly and logs to the console in deve
 
 The app now successfully allows users to register new accounts and log in using email and password authentication. Authentication state is properly maintained across app restarts. Users receive appropriate feedback for successful actions and clear error messages for invalid inputs or authentication failures. The app automatically navigates between authentication screens and the dashboard based on the user's authentication state.
 
+## Step 4: Set Up Firestore for User Profiles
+
+**Date Completed**: March 26, 2025
+
+### Tasks Completed
+
+1. Implemented user profile service:
+   - Created src/services/user.js with functions for creating, retrieving, and updating user profiles in Firestore
+   - Added proper error handling and success notifications
+   - Implemented function to check if a user has a complete profile
+
+2. Created utility functions for data handling:
+   - Created src/utils/dateUtils.js for handling Firebase Timestamps and date conversions
+   - Created src/utils/validation.js to validate user profile data
+   - Created src/utils/profileUtils.js to normalize and transform profile data between Firestore and UI formats
+
+3. Implemented test utilities:
+   - Added src/utils/testUtils.js with functions to create sample user profiles for testing
+   - Created TestProfileCreator component for manual testing of profile creation and retrieval
+   - Integrated test component into the DashboardScreen for easy access
+
+4. Defined user profile schema with required fields:
+   - uid (string): User's Firebase UID
+   - name (string): User's name or nickname
+   - age (number): User's age (18-30)
+   - gender (string): "male" or "female"
+   - travelDates (object): { arrival: timestamp, departure: timestamp } using Firebase Timestamp
+   - bio (string): Optional short description
+   - profilePicture (string): URL to the user's image
+   - Metadata fields: createdAt and updatedAt timestamps
+
+5. Configured Firestore security rules:
+   - Set up rules to allow authenticated users to read and write their own profile data
+   - Implemented temporary testing rules for development
+   - Verified proper permission enforcement
+
+6. Enhanced Firebase error handling:
+   - Improved Firebase initialization with better error detection
+   - Added user-friendly error messages for API key and connection issues
+   - Implemented initialization status tracking to prevent premature database access
+
+### Test Results
+
+The user profile service successfully creates and retrieves profiles from Firestore. The test component allows manual testing of profile creation and retrieval, confirming that all fields (including timestamps) are properly stored and retrieved. Error handling works as expected, with appropriate toast notifications displayed for both success and failure cases.
+
+The system properly validates profile data before saving to Firestore, enforcing constraints on age range (18-30), gender options (male/female), and ensuring travel dates are valid (arrival before departure). Timestamps are correctly converted between Firebase Timestamp objects and JavaScript Date objects as needed.
+
+Database security was verified by testing read and write operations, both with and without proper authentication, confirming that the Firestore security rules are functioning correctly. The enhanced Firebase initialization error handling successfully detects and reports configuration issues, providing helpful diagnostic information and preventing app crashes.
+

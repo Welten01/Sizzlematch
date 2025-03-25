@@ -11,6 +11,10 @@ import {
   FIREBASE_APP_ID
 } from '@env';
 
+// Track Firebase initialization status
+let isInitialized = false;
+let initError = null;
+
 // Firebase configuration from environment variables
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
@@ -21,10 +25,33 @@ const firebaseConfig = {
   appId: FIREBASE_APP_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+// Initialize Firebase with error handling
+let app, auth, db, storage;
 
-export { app, auth, db, storage }; 
+try {
+  console.log('Initializing Firebase with config:', {
+    apiKey: FIREBASE_API_KEY ? 'valid' : 'missing',
+    authDomain: FIREBASE_AUTH_DOMAIN,
+    projectId: FIREBASE_PROJECT_ID,
+  });
+
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
+  isInitialized = true;
+  console.log('Firebase successfully initialized');
+} catch (error) {
+  console.error('Firebase initialization error:', error);
+  initError = error;
+}
+
+// Helper function to check if Firebase is initialized
+export const checkFirebaseInitialization = () => {
+  if (!isInitialized) {
+    throw new Error(`Firebase initialization failed: ${initError?.message || 'Unknown error'}`);
+  }
+  return true;
+};
+
+export { app, auth, db, storage, isInitialized, initError }; 
