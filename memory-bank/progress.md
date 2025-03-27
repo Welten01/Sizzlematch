@@ -148,3 +148,48 @@ The system properly validates profile data before saving to Firestore, enforcing
 
 Database security was verified by testing read and write operations, both with and without proper authentication, confirming that the Firestore security rules are functioning correctly. The enhanced Firebase initialization error handling successfully detects and reports configuration issues, providing helpful diagnostic information and preventing app crashes.
 
+## Step 5: Implement Cloud Storage for Profile Pictures
+
+**Date Completed**: March 27, 2025
+
+### Tasks Completed
+
+1. Implemented Firebase Cloud Storage service:
+   - Created src/services/storage.js with functions for uploading, retrieving, and deleting profile pictures
+   - Added comprehensive error handling with appropriate toast notifications
+   - Implemented helper functions to extract storage paths from download URLs
+
+2. Created image utilities:
+   - Added src/utils/imageUtils.js with functions to convert image URIs to Blobs
+   - Implemented validation for image size and file types
+   - Added helper functions for working with file extensions and URIs
+
+3. Enhanced user profile service:
+   - Updated src/services/user.js to integrate with the new image upload functionality
+   - Modified profile creation and update functions to handle image URIs
+   - Added profile picture as a required field for complete profiles
+
+4. Implemented test components:
+   - Created ImageUploadTest.js component for testing image upload, retrieval, and deletion
+   - Updated TestProfileCreator to include image selection and upload capability
+   - Enhanced test utilities to support image uploads for test profiles
+
+5. Configured Dashboard for testing:
+   - Updated DashboardScreen.js to include both test components
+   - Added ScrollView to accommodate multiple test sections
+   - Improved layout and spacing for better usability
+
+6. Installed and configured required packages:
+   - Added expo-image-picker for selecting images from the device
+   - Configured permissions handling for accessing the media library
+
+### Test Results
+
+The image upload functionality was successfully implemented and tested. Users can now select images from their device's gallery, which are then uploaded to Firebase Cloud Storage. The system properly validates image size and file types before uploading to prevent invalid uploads.
+
+The image URLs are correctly stored in Firestore as part of the user profile and can be retrieved and displayed in the app. The system handles both creating new profile pictures and updating existing ones, with proper cleanup of old images to prevent storage bloat.
+
+Error handling is comprehensive, with appropriate toast notifications for success and failure cases. The system is resilient to network interruptions and handles permission-related issues gracefully.
+
+The image upload test component provides a user-friendly interface for testing all aspects of the image functionality, while the enhanced TestProfileCreator allows creating test profiles with real images rather than just placeholder URLs.
+

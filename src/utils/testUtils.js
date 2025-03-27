@@ -23,14 +23,27 @@ export const createTestUserProfile = async (uid, overrides = {}) => {
       profilePicture: 'https://via.placeholder.com/150',
     };
 
+    // Extract imageUri if provided in overrides
+    const { imageUri, ...otherOverrides } = overrides;
+
     // Merge defaults with any overrides
     const profileData = {
       ...defaultProfile,
-      ...overrides,
+      ...otherOverrides,
     };
 
-    // Save to Firestore
-    await saveUserProfile(uid, profileData);
+    // If imageUri is provided, use it for upload, otherwise use the placeholder
+    if (imageUri) {
+      // Remove profilePicture as it will be set by saveUserProfile
+      delete profileData.profilePicture;
+      
+      // Save to Firestore with image upload
+      await saveUserProfile(uid, profileData, imageUri);
+    } else {
+      // Save to Firestore without image upload
+      await saveUserProfile(uid, profileData);
+    }
+    
     console.log('Test profile created successfully:', profileData);
   } catch (error) {
     console.error('Error creating test profile:', error);

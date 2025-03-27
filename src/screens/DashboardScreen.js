@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthButton from '../components/AuthButton';
 import { logout } from '../services/auth';
 import { showToast } from '../utils/toast';
 import TestProfileCreator from '../components/TestProfileCreator';
+import ImageUploadTest from '../components/ImageUploadTest';
 
 const DashboardScreen = () => {
   const handleLogout = async () => {
@@ -18,22 +19,27 @@ const DashboardScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Welcome to Sizzlematch!</Text>
-        <Text style={styles.subtitle}>
-          You're logged in. This is a placeholder dashboard for authenticated users.
-        </Text>
-        
-        {/* User Profile Testing Section */}
-        <TestProfileCreator />
-        
-        <View style={styles.buttonContainer}>
-          <AuthButton
-            title="Log Out"
-            onPress={handleLogout}
-          />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Welcome to Sizzlematch!</Text>
+          <Text style={styles.subtitle}>
+            You're logged in. This is a placeholder dashboard for authenticated users.
+          </Text>
+          
+          {/* User Profile Testing Section */}
+          <TestProfileCreator />
+          
+          {/* Image Upload Testing Section */}
+          <ImageUploadTest />
+          
+          <View style={styles.buttonContainer}>
+            <AuthButton
+              title="Log Out"
+              onPress={handleLogout}
+            />
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -42,6 +48,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   content: {
     flex: 1,
@@ -65,6 +74,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
     paddingHorizontal: 20,
+    marginTop: 20,
   },
 });
 

@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { auth, isInitialized, initError } from '../config/firebase';
 import { saveUserProfile, getUserProfile } from '../services/user';
 import { createTestUserProfile, createMultipleTestProfiles } from '../utils/testUtils';
 import { showToast } from '../utils/toast';
 import { dateToTimestamp } from '../utils/dateUtils';
+import * as ImagePicker from 'expo-image-picker';
+import { uriToBlob } from '../utils/imageUtils';
 
 const TestProfileCreator = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [firebaseStatus, setFirebaseStatus] = useState({ ready: false, error: null });
+  const [selectedImage, setSelectedImage] = useState(null);
 
   // Check Firebase initialization on component mount
   useEffect(() => {
@@ -22,6 +25,33 @@ const TestProfileCreator = () => {
       });
     }
   }, []);
+
+  // Request permission and pick an image from gallery
+  const pickImage = async () => {
+    try {
+      // Request permission
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        showToast('Permission to access media library is required', 'error');
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setSelectedImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      showToast('Failed to select image', 'error');
+    }
+  };
 
   const handleCreateProfile = async () => {
     setLoading(true);
@@ -54,11 +84,19 @@ const TestProfileCreator = () => {
           departure: dateToTimestamp(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
         },
         bio: 'This is a sample profile created for testing purposes.',
-        profilePicture: 'https://via.placeholder.com/150',
       };
       
-      await saveUserProfile(user.uid, profileData);
+      // If an image was selected, pass it to saveUserProfile
+      if (selectedImage) {
+        await saveUserProfile(user.uid, profileData, selectedImage);
+      } else {
+        // Use placeholder if no image selected
+        profileData.profilePicture = 'https://via.placeholder.com/150';
+        await saveUserProfile(user.uid, profileData);
+      }
+      
       setResult('Profile created successfully!');
+      setSelectedImage(null); // Reset selected image after successful upload
     } catch (error) {
       console.error('Error in test profile creation:', error);
       setResult(`Error: ${error.message}`);
@@ -124,7 +162,14 @@ const TestProfileCreator = () => {
         return;
       }
       
-      await createTestUserProfile(user.uid);
+      // Pass selected image if available
+      if (selectedImage) {
+        await createTestUserProfile(user.uid, { imageUri: selectedImage });
+        setSelectedImage(null); // Reset selected image after successful upload
+      } else {
+        await createTestUserProfile(user.uid);
+      }
+      
       setResult('Test profile created successfully!');
     } catch (error) {
       console.error('Error creating test profile:', error);
@@ -188,6 +233,21 @@ const TestProfileCreator = () => {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Test User Profile in Firestore</Text>
       
+      {/* Image Selection */}
+      <View style={styles.imageSection}>
+        <TouchableOpacity 
+          style={styles.imagePicker}
+          onPress={pickImage}
+          disabled={loading}
+        >
+          {selectedImage ? (
+            <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+          ) : (
+            <Text style={styles.imagePickerText}>Select Profile Image</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+      
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
           style={styles.button}
@@ -250,6 +310,31 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+  },
+  imageSection: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  imagePicker: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#e0e0e0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  imagePickerText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    padding: 10,
+  },
+  selectedImage: {
+    width: '100%',
+    height: '100%',
   },
   buttonContainer: {
     marginBottom: 20,

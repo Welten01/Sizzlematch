@@ -7,6 +7,8 @@ import {
 } from 'firebase/firestore';
 import { db, isInitialized } from '../config/firebase';
 import { showToast } from '../utils/toast';
+import { uploadProfilePicture, updateProfilePicture } from './storage';
+import { uriToBlob } from '../utils/imageUtils';
 
 // Helper to check Firebase initialization
 const checkFirebaseReady = () => {
@@ -22,18 +24,32 @@ const checkFirebaseReady = () => {
  * Creates or updates a user profile in Firestore
  * @param {string} uid - User's Firebase UID
  * @param {object} profileData - User profile data
+ * @param {string} [imageUri] - Optional image URI to upload as profile picture
  * @returns {Promise<void>}
  */
-export const saveUserProfile = async (uid, profileData) => {
+export const saveUserProfile = async (uid, profileData, imageUri = null) => {
   try {
     // Check Firebase initialization first
     checkFirebaseReady();
+    
+    // Process profile picture if provided
+    let dataToSave = { ...profileData };
+    if (imageUri) {
+      // Convert image URI to blob
+      const imageBlob = await uriToBlob(imageUri);
+      
+      // Upload image and get download URL
+      const downloadURL = await uploadProfilePicture(uid, imageBlob);
+      
+      // Add the profile picture URL to the profile data
+      dataToSave.profilePicture = downloadURL;
+    }
     
     const userRef = doc(db, 'users', uid);
     
     // Add metadata fields
     const dataWithMetadata = {
-      ...profileData,
+      ...dataToSave,
       updatedAt: serverTimestamp(),
     };
     
@@ -90,18 +106,37 @@ export const getUserProfile = async (uid) => {
  * Updates specific fields in a user profile
  * @param {string} uid - User's Firebase UID
  * @param {object} updates - Object containing fields to update
+ * @param {string} [imageUri] - Optional new image URI for profile picture
  * @returns {Promise<void>}
  */
-export const updateUserProfile = async (uid, updates) => {
+export const updateUserProfile = async (uid, updates, imageUri = null) => {
   try {
     // Check Firebase initialization first
     checkFirebaseReady();
+    
+    let updatesToApply = { ...updates };
+    
+    // Handle profile picture update if provided
+    if (imageUri) {
+      // Get current profile to check for existing picture
+      const currentProfile = await getUserProfile(uid);
+      const oldImageURL = currentProfile?.profilePicture || null;
+      
+      // Convert image URI to blob
+      const imageBlob = await uriToBlob(imageUri);
+      
+      // Update the profile picture and get new URL
+      const downloadURL = await updateProfilePicture(uid, imageBlob, oldImageURL);
+      
+      // Add the profile picture URL to the updates
+      updatesToApply.profilePicture = downloadURL;
+    }
     
     const userRef = doc(db, 'users', uid);
     
     // Add updatedAt timestamp
     const updatesWithTimestamp = {
-      ...updates,
+      ...updatesToApply,
       updatedAt: serverTimestamp(),
     };
     
@@ -135,7 +170,8 @@ export const hasCompleteProfile = async (uid) => {
       'name', 
       'age', 
       'gender', 
-      'travelDates'
+      'travelDates',
+      'profilePicture' // Added profile picture as a required field
     ];
     
     for (const field of requiredFields) {
